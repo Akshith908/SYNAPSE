@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SYNAPSE | Human Connectome Explorer</title>
+  <meta name="description" content="A frontend simulation dashboard for exploring brain connectivity, disease profiles, signal propagation, and network metrics.">
+
+  <meta property="og:title" content="SYNAPSE Human Connectome Explorer">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="icon.png">
+  <meta property="og:image:alt" content="SYNAPSE project icon">
+
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#0a0c10">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <main class="app-shell" aria-label="SYNAPSE Human Connectome Explorer">
+    <header class="topbar">
+      <a class="brand" href="#explorer" data-view-target="explorer" aria-label="SYNAPSE home">
+        <span class="brand-mark">SYNAPSE</span>
+        <span class="brand-subtitle">Connectome Explorer v3.0</span>
+      </a>
+
+      <nav class="nav-pills" aria-label="Application views">
+        <button class="nav-pill active" type="button" data-view-target="explorer">Explorer</button>
+        <button class="nav-pill" type="button" data-view-target="overview">Overview</button>
+        <button class="nav-pill" type="button" data-view-target="disease-lab">Disease Lab</button>
+        <button class="nav-pill" type="button" data-view-target="history">History</button>
+      </nav>
+
+      <div class="system-status" aria-label="System status">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="data-source-status">Static Sample Mode</span>
+      </div>
+    </header>
+
+    <div class="page-stack">
+      <section class="page page-explorer active" data-view="explorer" aria-label="Explorer view">
+        <section class="page-hero compact">
+          <div>
+            <p class="eyebrow">FSD Course Project</p>
+            <h1>Interactive connectome sandbox for region activity, pathways, lesions, and disease-state overlays.</h1>
+            <p>
+              Use the explorer to compare simulated neurological conditions, inject signals, trace pathways,
+              and save believable-looking run configurations for demos and viva presentations.
+            </p>
+          </div>
+
+          <div class="hero-stats" aria-label="Project summary">
+            <div>
+              <strong id="node-count">60</strong>
+              <span>Regions</span>
+            </div>
+            <div>
+              <strong id="edge-count">0</strong>
+              <span>Fibers</span>
+            </div>
+            <div>
+              <strong id="overview-affected-count">0</strong>
+              <span>Affected</span>
+            </div>
+            <div>
+              <strong id="overview-severity">Baseline</strong>
+              <span>Condition State</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard" id="connectome">
+          <aside class="panel panel-left" aria-label="Selected region and pathway controls">
+            <section class="panel-section">
+              <h2 class="panel-title">Selected Region</h2>
+              <article class="region-card" id="region-card">
+                <h3 id="region-name">Left Prefrontal Cortex</h3>
+                <span class="region-badge" id="region-network">Default Mode Network</span>
+
+                <dl class="detail-list">
+                  <div>
+                    <dt>Hemisphere</dt>
+                    <dd id="region-hemisphere">Left</dd>
+                  </div>
+                  <div>
+                    <dt>Connections</dt>
+                    <dd id="region-connections">47</dd>
+                  </div>
+                  <div>
+                    <dt>Hub Score</dt>
+                    <dd class="hub-text" id="region-hub">0.91</dd>
+                  </div>
+                  <div>
+                    <dt>Activation</dt>
+                    <dd class="signal-text" id="region-activation">0.00</dd>
+                  </div>
+                  <div>
+                    <dt>MNI</dt>
+                    <dd id="region-mni">-24, 14, 52</dd>
+                  </div>
+                </dl>
+
+                <div class="strength-bar" aria-label="Region hub strength">
+                  <div class="strength-fill" id="region-strength"></div>
+                </div>
+                <p class="rank-line">Centrality rank: <span id="region-rank">#3 / 360</span></p>
+              </article>
+            </section>
+
+            <section class="panel-section">
+              <h2 class="panel-title">Activation Log</h2>
+              <ol class="signal-log" id="activation-log" aria-live="polite"></ol>
+            </section>
+
+            <section class="panel-section" id="pathway">
+              <h2 class="panel-title">Shortest Path</h2>
+              <div class="path-controls">
+                <label>
+                  Source
+                  <select class="path-select" id="source-region"></select>
+                </label>
+                <label>
+                  Target
+                  <select class="path-select" id="target-region"></select>
+                </label>
+                <button class="control-btn" id="trace-path" type="button">Trace Pathway</button>
+              </div>
+              <div class="preset-pathways" id="preset-pathways"></div>
+              <p class="path-result" id="path-result" hidden>
+                Path: <span id="path-text">L_PFC -> L_ACC -> L_Hipp</span><br>
+                Hops: <span id="path-hops">3</span> | Strength: <span id="path-strength">0.76</span>
+              </p>
+            </section>
+
+            <section class="panel-section">
+              <h2 class="panel-title">Current Condition</h2>
+              <div class="condition-summary-card">
+                <p class="condition-kicker" id="overview-disease-name">Healthy</p>
+                <h3 id="condition-headline">Reference connectome state</h3>
+                <p class="disease-info" id="overview-disease-summary">
+                  Baseline HCP-style sample connectome. All sample regions active. No pathological changes applied.
+                </p>
+                <dl class="detail-list compact">
+                  <div>
+                    <dt>Primary circuit</dt>
+                    <dd id="overview-primary-circuit">Whole-brain integration</dd>
+                  </div>
+                  <div>
+                    <dt>Pattern</dt>
+                    <dd id="overview-pattern">Distributed synchrony preserved</dd>
+                  </div>
+                </dl>
+              </div>
+            </section>
+          </aside>
+
+          <section class="canvas-panel" aria-label="Connectome visualization">
+            <canvas id="brain-canvas"></canvas>
+            <div class="scan-line" aria-hidden="true"></div>
+            <div class="crosshair" aria-hidden="true"></div>
+            <div class="transition-overlay" id="transition-overlay" aria-hidden="true">
+              <span class="transition-kicker">Reconfiguring connectome</span>
+              <strong id="transition-disease-name">Healthy</strong>
+            </div>
+
+            <div class="hud" aria-label="Visualization status">
+              <span>Nodes: <strong id="hud-nodes">60</strong></span>
+              <span>Edges: <strong id="hud-edges">0</strong></span>
+              <span>Signal: <strong class="signal-text" id="signal-state">IDLE</strong></span>
+              <span>Mode: <strong class="accent-text" id="current-mode">CONNECTOME</strong></span>
+            </div>
+
+            <div class="legend" aria-label="Connectome legend">
+              <span><i class="legend-dot signal"></i>Resting</span>
+              <span><i class="legend-dot hub"></i>Hub</span>
+              <span><i class="legend-dot affected"></i>Affected</span>
+              <span><i class="legend-dot lesion"></i>Lesioned</span>
+            </div>
+          </section>
+
+          <aside class="panel panel-right" aria-label="Simulation controls">
+            <section class="panel-section">
+              <h2 class="panel-title">Signal Injection</h2>
+              <div class="slider-group">
+                <label>
+                  Strength
+                  <input type="range" min="1" max="100" value="80" id="strength-slider">
+                  <span id="strength-value">80</span>
+                </label>
+                <label>
+                  Decay
+                  <input type="range" min="1" max="100" value="30" id="decay-slider">
+                  <span id="decay-value">30</span>
+                </label>
+                <label>
+                  Speed
+                  <input type="range" min="1" max="100" value="60" id="speed-slider">
+                  <span id="speed-value">60</span>
+                </label>
+              </div>
+              <label class="snapshot-label-field">
+                Snapshot Label
+                <input type="text" id="snapshot-label" maxlength="80" placeholder="Example: AD memory loop demo">
+              </label>
+              <button class="control-btn fire" id="fire-signal" type="button">Fire Signal</button>
+              <button class="control-btn lesion" id="lesion-region" type="button">Lesion Region</button>
+              <button class="control-btn hub" id="detect-hubs" type="button">Detect Hubs</button>
+              <button class="control-btn" id="save-snapshot" type="button">Save Snapshot</button>
+            </section>
+
+            <section class="panel-section" id="tractography">
+              <h2 class="panel-title">Visualization Mode</h2>
+              <div class="mode-toggle" id="mode-toggle">
+                <button class="mode-btn active" type="button" data-mode="CONNECTOME">Connectome</button>
+                <button class="mode-btn" type="button" data-mode="TRACTOGRAPHY">Tractography</button>
+                <button class="mode-btn" type="button" data-mode="CENTRALITY">Centrality</button>
+                <button class="mode-btn" type="button" data-mode="COMMUNITY">Community</button>
+              </div>
+            </section>
+
+            <section class="panel-section">
+              <h2 class="panel-title">Region Labels</h2>
+              <button class="control-btn" id="toggle-labels" type="button">Show Main Region Names</button>
+              <p class="disease-info">
+                Overlays readable anatomical labels such as Prefrontal Cortex, Insula, Amygdala, Hippocampus, and Thalamus on key nodes.
+              </p>
+            </section>
+
+            <section class="panel-section" id="disease">
+              <h2 class="panel-title">Disease Profile</h2>
+              <div class="disease-grid" id="disease-grid"></div>
+              <p class="disease-info" id="disease-info">
+                Baseline HCP-style sample connectome. All sample regions active. No pathological changes applied.
+              </p>
+              <div class="affected-region-list" id="affected-region-list">
+                <span class="affected-region-tag">No affected regions</span>
+              </div>
+            </section>
+
+            <section class="panel-section">
+              <h2 class="panel-title">Network Metrics</h2>
+              <dl class="detail-list">
+                <div>
+                  <dt>Global Efficiency</dt>
+                  <dd class="active-text" id="metric-efficiency">0.847</dd>
+                </div>
+                <div>
+                  <dt>Clustering Coeff</dt>
+                  <dd class="signal-text" id="metric-clustering">0.612</dd>
+                </div>
+                <div>
+                  <dt>Path Length</dt>
+                  <dd id="metric-path-length">2.31</dd>
+                </div>
+                <div>
+                  <dt>Modularity Q</dt>
+                  <dd class="hub-text" id="metric-modularity">0.489</dd>
+                </div>
+                <div>
+                  <dt>Communities</dt>
+                  <dd id="metric-communities">7</dd>
+                </div>
+              </dl>
+            </section>
+          </aside>
+        </section>
+
+        <section class="matrix-panel" aria-label="Connectivity matrix summary">
+          <div class="matrix-header">Connectivity Matrix</div>
+          <canvas id="matrix-canvas"></canvas>
+          <div class="summary-metrics">
+            <div>
+              <strong id="active-count">0</strong>
+              <span>Active</span>
+            </div>
+            <div>
+              <strong class="lesion-text" id="lesioned-count">0</strong>
+              <span>Lesioned</span>
+            </div>
+            <div>
+              <strong class="hub-text" id="hub-count">0</strong>
+              <span>Hub Nodes</span>
+            </div>
+            <div>
+              <strong class="active-text" id="community-count">7</strong>
+              <span>Communities</span>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="page page-overview" data-view="overview" aria-label="Overview view">
+        <section class="page-hero">
+          <div>
+            <p class="eyebrow">Project Overview</p>
+            <h1>Designed like a demo-ready neuroinformatics console instead of a single scrolling prototype.</h1>
+            <p>
+              This version separates the project into focused views so you can present the concept, run the
+              simulation, explain disease differences, and revisit past configurations without losing context.
+            </p>
+
+            <div class="cta-row">
+              <button class="hero-action primary" type="button" data-view-target="explorer">Open Explorer</button>
+              <button class="hero-action" type="button" data-view-target="disease-lab">Compare Conditions</button>
+              <button class="hero-action" type="button" data-view-target="history">Review History</button>
+            </div>
+          </div>
+
+          <div class="overview-brief">
+            <p class="condition-kicker">Live Profile</p>
+            <h2 id="lab-current-disease">Healthy</h2>
+            <p id="lab-current-description">
+              Baseline HCP-style sample connectome. All sample regions active. No pathological changes applied.
+            </p>
+            <div class="overview-brief-grid">
+              <article>
+                <span>Hallmark</span>
+                <strong id="lab-hallmark">Stable inter-network synchrony</strong>
+              </article>
+              <article>
+                <span>Primary Circuit</span>
+                <strong id="lab-circuit">Whole-brain integration</strong>
+              </article>
+              <article>
+                <span>Observed Pattern</span>
+                <strong id="lab-pattern">Distributed synchrony preserved</strong>
+              </article>
+              <article>
+                <span>Affected Regions</span>
+                <strong id="lab-affected-count">0 regions</strong>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="overview-grid">
+          <article class="info-card">
+            <p class="card-kicker">Why Multipage</p>
+            <h3>Each view supports a different part of your presentation.</h3>
+            <ul class="card-list">
+              <li>Overview introduces the concept and current disease state.</li>
+              <li>Explorer is where the interactive simulation actually happens.</li>
+              <li>Disease Lab explains why the selected condition looks different.</li>
+              <li>History restores previous configs so you can demo repeatable scenarios.</li>
+            </ul>
+          </article>
+
+          <article class="info-card">
+            <p class="card-kicker">Believability Layer</p>
+            <h3>Fake data, but with consistent network-specific behavior.</h3>
+            <ul class="card-list">
+              <li>Every condition now changes visual tone, affected circuits, and matrix structure.</li>
+              <li>Metrics, region emphasis, and edge attenuation are aligned to the disease narrative.</li>
+              <li>Restored history entries replay those settings instead of only showing a text summary.</li>
+            </ul>
+          </article>
+
+          <article class="info-card wide">
+            <p class="card-kicker">Current Simulation Config</p>
+            <div class="config-summary" id="current-config-summary"></div>
+          </article>
+
+          <article class="info-card wide">
+            <p class="card-kicker">Clinical Notes</p>
+            <div class="clinical-notes-strip" id="clinical-notes-strip"></div>
+          </article>
+        </section>
+      </section>
+
+      <section class="page page-disease-lab" data-view="disease-lab" aria-label="Disease analysis view">
+        <section class="section-intro">
+          <div>
+            <p class="eyebrow">Disease Lab</p>
+            <h2>Condition-specific differences are visible in both narrative and graph behavior.</h2>
+          </div>
+          <button class="hero-action primary" type="button" data-view-target="explorer">Test in Explorer</button>
+        </section>
+
+        <section class="lab-grid">
+          <article class="info-card lab-main">
+            <p class="card-kicker">Current Condition</p>
+            <h3 id="profile-disease-name">Healthy</h3>
+            <p class="disease-info large" id="profile-note">
+              Stable baseline connectome with preserved default-mode, motor, and subcortical integration.
+            </p>
+            <div class="profile-highlights">
+              <article>
+                <span>Hallmark</span>
+                <strong id="profile-hallmark">Stable inter-network synchrony</strong>
+              </article>
+              <article>
+                <span>Circuit Focus</span>
+                <strong id="profile-circuit">Whole-brain integration</strong>
+              </article>
+              <article>
+                <span>Pattern</span>
+                <strong id="profile-pattern">Distributed synchrony preserved</strong>
+              </article>
+              <article>
+                <span>Severity</span>
+                <strong id="profile-severity">Reference baseline</strong>
+              </article>
+            </div>
+          </article>
+
+          <article class="info-card wide">
+            <div class="section-inline-header">
+              <div>
+                <p class="card-kicker">Compare With Healthy</p>
+                <h3>Relative metric shifts from the baseline control condition.</h3>
+              </div>
+              <button class="control-btn small" id="toggle-compare" type="button">Show Comparison</button>
+            </div>
+            <div class="compare-panel" id="compare-panel" hidden>
+              <div class="compare-grid" id="compare-grid"></div>
+            </div>
+          </article>
+
+          <article class="info-card wide">
+            <p class="card-kicker">Clinical Notes</p>
+            <div class="clinical-notes-strip" id="lab-clinical-notes-strip"></div>
+          </article>
+
+          <article class="info-card">
+            <p class="card-kicker">Network Impact</p>
+            <div class="impact-list" id="disease-network-impact"></div>
+          </article>
+
+          <article class="info-card">
+            <p class="card-kicker">What Changes Visually</p>
+            <div class="impact-list" id="disease-visual-impact"></div>
+          </article>
+        </section>
+      </section>
+
+      <section class="page page-history" data-view="history" aria-label="History view">
+        <section class="section-intro">
+          <div>
+            <p class="eyebrow">Simulation History</p>
+            <h2>Saved runs now keep enough state to restore a prior condition configuration.</h2>
+            <p id="snapshot-status">
+              Start the backend to load saved snapshots from MongoDB. Static mode keeps the dashboard interactive but does not persist history.
+            </p>
+          </div>
+
+          <div class="snapshot-toolbar">
+            <span class="snapshot-pill" id="snapshot-source-pill">Offline Preview</span>
+            <button class="control-btn" id="refresh-snapshots" type="button">Refresh History</button>
+          </div>
+        </section>
+
+        <section class="history-grid">
+          <article class="info-card">
+            <p class="card-kicker">Active Runtime Config</p>
+            <div class="config-summary" id="history-config-summary"></div>
+          </article>
+
+          <article class="info-card wide">
+            <p class="card-kicker">Saved Configurations</p>
+            <div class="snapshot-list" id="snapshot-list" aria-live="polite">
+              <article class="snapshot-item empty">
+                <strong>No snapshots loaded.</strong>
+                <p>Save a run from the dashboard to store a simulation summary in MongoDB.</p>
+              </article>
+            </div>
+          </article>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/connectome-data.js"></script>
+  <script src="js/connectome-model.js"></script>
+  <script src="js/connectome-renderer.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>

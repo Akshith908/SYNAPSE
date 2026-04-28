@@ -1,0 +1,8 @@
+{
+  "short_name": "SYNAPSE",
+  "name": "SYNAPSE Human Connectome Explorer",
+  "icons": [],
+  "start_url": "/",
+  "background_color": "#080b10",
+  "theme_color": "#0a0c10"
+}
