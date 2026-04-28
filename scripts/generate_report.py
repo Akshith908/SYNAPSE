@@ -24,12 +24,11 @@ COLLEGE_LINE_2 = "Accredited by NAAC with 'A++' Grade"
 COLLEGE_LINE_3 = "(Affiliated to Osmania University and Approved by AICTE)"
 COLLEGE_LOCATION = "Ibrahimbagh, Hyderabad - 500031"
 TEAM_MEMBERS = [
-    ("<Student Name 1>", "<Hall Ticket No. 1>"),
-    ("<Student Name 2>", "<Hall Ticket No. 2>"),
-    ("<Student Name 3>", "<Hall Ticket No. 3>"),
+    ("Prateek", "1602-24-737-092"),
+    ("Akshith", "1602-24-737-067"),
 ]
-FACULTY_COORDINATORS = ["<Faculty Coordinator 1>", "<Faculty Coordinator 2>"]
-GITHUB_LINK = "<Add GitHub repository URL here>"
+FACULTY_COORDINATORS = ["Mr. Harishwar"]
+GITHUB_LINK = "https://github.com/Akshith908/SYNAPSE"
 TODAY = datetime.now().strftime("%d %B %Y")
 
 REFERENCE_ITEMS = [
@@ -334,12 +333,6 @@ def add_cover_page(document):
     add_centered(document, DEPARTMENT, 14, True)
     add_centered(document, COLLEGE, 14, True)
     add_centered(document, ACADEMIC_YEAR, 12, True)
-    note = document.add_paragraph()
-    note.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    note.paragraph_format.first_line_indent = Cm(0)
-    run = note.add_run("Replace placeholder names, hall ticket numbers, and faculty details before final submission.")
-    run.italic = True
-    run.font.size = Pt(11)
     document.add_page_break()
 
 
@@ -364,25 +357,26 @@ def add_declaration_page(document):
         "This report is a record of bonafide work carried out by us. The software implementation, screenshots, testing results, and observations presented in this report have not been submitted to any other university or institute for the award of any other degree or diploma.",
     )
     document.add_paragraph()
-    signature_table = document.add_table(rows=4, cols=2)
+    signature_table = document.add_table(rows=len(TEAM_MEMBERS) + 1, cols=2)
     signature_table.style = "Table Grid"
     for index, (name, ticket) in enumerate(TEAM_MEMBERS):
         signature_table.cell(index, 0).text = name
         signature_table.cell(index, 1).text = ticket
-    signature_table.cell(3, 0).text = "Faculty In-Charge / Reviewer"
-    signature_table.cell(3, 1).text = "<Signature and date>"
+    signature_table.cell(len(TEAM_MEMBERS), 0).text = "Faculty In-Charge / Reviewer"
+    signature_table.cell(len(TEAM_MEMBERS), 1).text = "<Signature and date>"
     document.add_page_break()
 
 
 def add_acknowledgement_page(document):
     add_heading(document, "ACKNOWLEDGEMENT", 1)
+    faculty_line = ", ".join(FACULTY_COORDINATORS)
     add_body(
         document,
         "We express our sincere gratitude to the Department of Information Technology, Vasavi College of Engineering, for providing the opportunity to work on this Course Based Project. The project helped us combine frontend interface design, backend service development, and database integration in a single demonstrable application.",
     )
     add_body(
         document,
-        f"We thank our faculty coordinators {FACULTY_COORDINATORS[0]} and {FACULTY_COORDINATORS[1]} for their guidance in selecting an appropriate project scope, reviewing progress, and helping us align the implementation with the Full Stack Development course objectives.",
+        f"We thank our faculty coordinator {faculty_line} for guidance in selecting an appropriate project scope, reviewing progress, and helping us align the implementation with the Full Stack Development course objectives.",
     )
     add_body(
         document,
@@ -395,7 +389,7 @@ def add_abstract_page(document):
     add_heading(document, "ABSTRACT", 1)
     add_body(
         document,
-        "SYNAPSE Human Connectome Explorer is a course based project that simulates exploration of a human brain connectome through a single page dashboard. The application visualises a sample brain network using the HTML Canvas API, supports region selection, signal propagation, shortest pathway tracing, disease profile switching, selected-region lesioning, and snapshot saving. The frontend is implemented using HTML5, CSS3, and Vanilla JavaScript. The backend is implemented using Node.js and Express, while MongoDB stores the seeded region metadata, network definitions, disease profiles, pathways, and saved simulation snapshots.",
+        "SYNAPSE Human Connectome Explorer is a course based project that simulates exploration of a human brain connectome through a multipage scientific dashboard. The application visualises a sample brain network using the HTML Canvas API, supports region selection, signal propagation, shortest pathway tracing, disease profile switching, disease-specific pathway presets, selected-region lesioning, compare-with-healthy metrics, and snapshot saving with restorable configurations. The frontend is implemented using HTML5, CSS3, and Vanilla JavaScript. The backend is implemented using Node.js and Express, while MongoDB stores seeded region metadata, network definitions, disease profiles, pathways, and saved simulation snapshots.",
     )
     add_body(
         document,
@@ -406,12 +400,43 @@ def add_abstract_page(document):
 
 def add_toc_page(document):
     add_heading(document, "TABLE OF CONTENTS", 1)
-    paragraph = document.add_paragraph()
-    paragraph.paragraph_format.first_line_indent = Cm(0)
-    add_field(paragraph, 'TOC \\o "1-3" \\h \\z \\u')
+    toc_items = [
+        "ACKNOWLEDGEMENT",
+        "ABSTRACT",
+        "CHAPTER 1 ABSTRACT AND INTRODUCTION",
+        "1.1 Introduction",
+        "1.2 Project Objectives and Prioritised Features",
+        "1.3 Technology Used",
+        "1.4 Software Requirements",
+        "1.5 Hardware Requirements",
+        "1.6 Abstract of the Implemented Solution",
+        "CHAPTER 2 PROPOSED WORK",
+        "2.1 Problem Statement",
+        "2.2 Design Overview",
+        "2.3 Architecture Showing the Flow of Data",
+        "2.4 Activity Diagram",
+        "2.5 Implementation",
+        "2.6 Module-wise Code and Responsibilities",
+        "2.7 Key Logic Highlighted in Bold",
+        "2.8 Representative Code Snippets",
+        "2.9 GitHub Link and Folder Structure",
+        "CHAPTER 3 TESTING",
+        "CHAPTER 4 RESULTS",
+        "CHAPTER 5 ADDITIONAL KNOWLEDGE GAINED",
+        "CHAPTER 6 CONCLUSION AND FUTURE WORK",
+        "CHAPTER 7 REFERENCES",
+    ]
+    for item in toc_items:
+        paragraph = document.add_paragraph()
+        paragraph.paragraph_format.first_line_indent = Cm(0)
+        if item.startswith(("1.", "2.")):
+            paragraph.paragraph_format.left_indent = Cm(1.0)
+        else:
+            paragraph.paragraph_format.left_indent = Cm(0)
+        paragraph.add_run(item)
     note = document.add_paragraph()
     note.paragraph_format.first_line_indent = Cm(0)
-    run = note.add_run("Update the table of contents in Word or LibreOffice after opening the document to populate page numbers.")
+    run = note.add_run("Add page numbers manually in Word or LibreOffice after opening the document.")
     run.italic = True
     document.add_page_break()
 
@@ -432,12 +457,13 @@ def add_intro_chapter(document):
     add_bullets(
         document,
         [
-            "Create a polished single page dashboard that looks like a focused application instead of an isolated demo.",
+            "Create a polished multipage dashboard that looks like a focused application instead of an isolated demo.",
+            "Restructure the interface into a presentation-friendly multipage flow with overview, explorer, disease comparison, and history views.",
             "Visualise a sample connectome using Canvas-based nodes, edges, animations, and a connectivity matrix.",
             "Support user actions such as region selection, signal firing, shortest pathway tracing, disease profile switching, and lesion simulation.",
             "Integrate MongoDB for storing regions, networks, disease profiles, pathways, and simulation snapshots.",
             "Allow the frontend to remain functional even if the backend is unavailable by using a local fallback dataset.",
-            "Improve interpretability through anatomical labels and full-name affected-region displays for disease profiles.",
+            "Improve interpretability through anatomical labels, disease notes, preset pathways, and full-name affected-region displays.",
         ],
     )
 
@@ -463,7 +489,7 @@ def add_intro_chapter(document):
         ["Component", "Requirement"],
         [
             ("Operating System", "Windows, Linux, or macOS"),
-            ("Runtime", "Node.js 20 or later (project verified with Node.js 22)"),
+            ("Runtime", "Node.js 18 or later"),
             ("Package Manager", "npm"),
             ("Database", "MongoDB Community Server 8.x or compatible"),
             ("Browser", "Modern browser with Canvas support such as Firefox, Chrome, or Edge"),
@@ -487,7 +513,7 @@ def add_intro_chapter(document):
     add_heading(document, "1.6 Abstract of the Implemented Solution", 2)
     add_body(
         document,
-        "The final implemented solution is a single page application with three main areas: a left panel for selected region and pathway information, a central canvas for connectome visualisation, and a right panel for simulation controls. The application seeds and loads sample region information, creates a weighted graph using deterministic logic, and lets the user observe signal spread, disease-based metric updates, lesion effects, and saved snapshot history. The design intentionally balances academic scope and demonstrable completeness.",
+        "The final implemented solution is a multipage web application with dedicated overview, explorer, disease-lab, and history views. The explorer retains the high-density dashboard core with a left panel for selected region and pathway information, a central canvas for connectome visualisation, and a right panel for simulation controls. The application seeds and loads sample region information, creates a weighted graph using deterministic logic, and lets the user observe signal spread, disease-based metric updates, lesion effects, compare-with-healthy deltas, and saved snapshot history. The design intentionally balances academic scope and demonstrable completeness.",
     )
 
 
@@ -502,9 +528,9 @@ def add_proposed_work_chapter(document):
     add_heading(document, "2.2 Design Overview", 2)
     add_body(
         document,
-        "The dashboard design follows a high-density scientific console style. The left panel displays selected region information, activation logs, and path tracing controls. The central canvas acts as the primary visual workspace where nodes, edges, signal ripples, and optional anatomical labels are rendered. The right panel groups disease profiles, metrics, simulation sliders, and action buttons. A matrix footer summarises activity and graph state, while a snapshot section below the dashboard shows saved simulation runs.",
+        "The interface design follows a high-density scientific console style while also supporting a cleaner multipage presentation flow. The Overview page introduces the project and summarises the currently selected disease state. The Explorer page contains the core dashboard where the left panel displays selected region information, activation logs, and path tracing controls; the central canvas acts as the primary visual workspace; and the right panel groups disease profiles, metrics, simulation sliders, snapshot labeling, and action buttons. The Disease Lab page explains condition-specific notes and compare-with-healthy deltas, while the History page shows saved simulation runs and allows configuration restoration.",
     )
-    add_image(document, ASSET_DIR / "synapse_dashboard.png", "Figure 2.1 Main dashboard screenshot of SYNAPSE", width=Inches(6.0))
+    add_image(document, ASSET_DIR / "synapse_dashboard.png", "Figure 2.1 Main dashboard screenshot of SYNAPSE", width=Inches(6.2))
 
     add_heading(document, "2.3 Architecture Showing the Flow of Data", 2)
     add_body(
@@ -523,7 +549,7 @@ def add_proposed_work_chapter(document):
     add_heading(document, "2.5 Implementation", 2)
     add_body(
         document,
-        "The implementation is split into clear modules rather than a single long HTML file. The HTML document defines the structure of the dashboard. The stylesheet contains the dashboard theme, responsive behaviour, and reusable control classes. The JavaScript application layer manages state and event handling. Separate modules define sample connectome data, graph generation logic, and canvas rendering. On the server side, Express routes deliver bootstrap data and receive snapshot requests. MongoDB collections are seeded automatically when the backend starts on an empty database.",
+        "The implementation is split into clear modules rather than a single monolithic file. The HTML document defines the multipage structure and the explorer dashboard layout. The stylesheet contains the scientific console theme, responsive behaviour, transitions, notes, cards, and reusable control classes. The JavaScript application layer manages state, navigation, disease switching, comparison logic, pathway presets, snapshot restoration, and event handling. Separate modules define sample connectome data, graph generation logic, and canvas rendering. On the server side, Express routes deliver bootstrap data and receive snapshot requests. MongoDB collections are seeded automatically when the backend starts on an empty database.",
     )
 
     add_heading(document, "2.6 Module-wise Code and Responsibilities", 2)
@@ -531,13 +557,13 @@ def add_proposed_work_chapter(document):
         document,
         ["Module / File", "Role in the Project"],
         [
-            ("index.html", "Defines topbar, hero, dashboard panels, matrix footer, and snapshot history section."),
-            ("css/style.css", "Styles the scientific dashboard interface, cards, controls, labels, panels, and responsive layout."),
-            ("js/connectome-data.js", "Stores region blueprints, network definitions, disease profiles, and sample pathways."),
+            ("index.html", "Defines multipage structure, explorer dashboard panels, disease-lab content blocks, and history section."),
+            ("css/style.css", "Styles the scientific dashboard interface, disease-aware themes, transitions, cards, controls, and responsive layout."),
+            ("js/connectome-data.js", "Stores region blueprints, network definitions, disease profiles, clinical notes, and sample pathways."),
             ("js/connectome-model.js", "Generates nodes and weighted edges, supports path derivation, and locates clicked nodes."),
-            ("js/connectome-renderer.js", "Draws graph nodes, edges, matrix, signals, and optional anatomical labels using Canvas."),
-            ("js/app.js", "Coordinates UI state, disease switching, label toggling, lesion logic, snapshot loading, and save actions."),
-            ("server/server.js", "Starts Express server, serves static files, and defines /api/health, /api/bootstrap, and /api/simulations."),
+            ("js/connectome-renderer.js", "Draws graph nodes, edges, matrix, disease transition effects, signals, and optional anatomical labels using Canvas."),
+            ("js/app.js", "Coordinates UI state, disease switching, compare mode, preset pathways, label toggling, lesion logic, snapshot loading, restore actions, and save actions."),
+            ("server/server.js", "Starts Express server, serves static files, and defines /api/health, /api/bootstrap, and /api/simulations with config persistence."),
             ("server/db.js", "Connects to MongoDB, seeds collections, and exposes reusable database helpers."),
             ("server/sample-data.js", "Loads sample data by evaluating the frontend data module for seeding."),
             ("server/seed.js", "Reseeds MongoDB manually through an npm script when needed."),
@@ -560,7 +586,11 @@ def add_proposed_work_chapter(document):
     p4 = document.add_paragraph()
     p4.add_run("The ").bold = False
     p4.add_run("MongoDB Snapshot Persistence Logic").bold = True
-    p4.add_run(" writes current disease, selected region, node counts, and metric values into the simulationSnapshots collection for later viewing.")
+    p4.add_run(" writes current disease, selected region, node counts, metric values, and restorable configuration data into the simulationSnapshots collection for later viewing.")
+    p5 = document.add_paragraph()
+    p5.add_run("The ").bold = False
+    p5.add_run("Disease Profile Transition Logic").bold = True
+    p5.add_run(" changes graph styling, pathology emphasis, compare metrics, and preset pathways so switching between conditions is visibly meaningful.")
 
     add_heading(document, "2.8 Representative Code Snippets", 2)
     add_body(document, "Snippet 1: Express route used to deliver bootstrap data from MongoDB.")
@@ -579,16 +609,18 @@ def add_proposed_work_chapter(document):
             "});",
         ],
     )
-    add_body(document, "Snippet 2: Canvas label toggle used to reveal anatomical names for main regions.")
+    add_body(document, "Snippet 2: Saved configuration restore logic used to reapply a previous simulation state from history.")
     add_code_block(
         document,
         [
-            "function toggleLabels() {",
-            "  state.labelMode = !state.labelMode;",
-            "  elements.toggleLabels.classList.toggle(\"active\", state.labelMode);",
-            "  elements.toggleLabels.textContent = state.labelMode",
-            "    ? \"Hide Main Region Names\"",
-            "    : \"Show Main Region Names\";",
+            "function restoreSnapshot(snapshot) {",
+            "  const config = snapshot.config || {",
+            "    disease: snapshot.disease,",
+            "    selectedRegion: snapshot.selectedRegion,",
+            "    mode: \"CONNECTOME\"",
+            "  };",
+            "  activateView(\"explorer\", true);",
+            "  applySavedConfig(config, { showStatus: true });",
             "}",
         ],
     )
@@ -640,13 +672,15 @@ def add_testing_chapter(document):
         ("TC-03", "Region selection", "Click a visible node in the connectome.", "Selected region card updates with new metadata.", "Name, network, activation, and rank updated.", "Pass"),
         ("TC-04", "Signal propagation", "Press Fire Signal after selecting a node.", "Signal ripple appears and activation metrics change.", "Ripple animation and activation count updated.", "Pass"),
         ("TC-05", "Path tracing", "Select source and target regions and click Trace Pathway.", "Path string, hop count, and strength appear.", "Path details rendered in left panel.", "Pass"),
-        ("TC-06", "Disease profile", "Switch from Healthy to Schizophrenia.", "Metrics and affected region tags update.", "Disease metrics and full-name affected regions updated.", "Pass"),
+        ("TC-06", "Disease profile", "Switch from Healthy to Schizophrenia.", "Metrics, notes, and affected region tags update.", "Disease metrics, clinical notes, and full-name affected regions updated.", "Pass"),
         ("TC-07", "Lesion action", "Select a non-hub node and press Lesion Region.", "Selected node becomes lesioned and metrics drop.", "Node turned red, lesion count increased, metrics decreased.", "Pass"),
         ("TC-08", "Hub protection", "Select a hub node and press Lesion Region.", "Lesion is blocked with guard status.", "Hub Locked message displayed.", "Pass"),
         ("TC-09", "Region labels", "Press Show Main Region Names.", "Main anatomical labels appear on graph.", "Labels for PFC, insula, amygdala, etc. displayed.", "Pass"),
-        ("TC-10", "Snapshot save", "Click Save Snapshot with backend active.", "Snapshot saved in MongoDB and history refreshes.", "Snapshot item created and shown in history list.", "Pass"),
-        ("TC-11", "API health", "Call GET /api/health.", "API returns ok status and database name.", "API returned JSON with ok=true.", "Pass"),
-        ("TC-12", "Build verification", "Run npm run build.", "Production build completes without errors.", "webpack build completed successfully.", "Pass"),
+        ("TC-10", "Preset pathways", "Use a disease-specific preset pathway button.", "Source/target update and pathway is traced automatically.", "Preset controls triggered visible pathway updates.", "Pass"),
+        ("TC-11", "Snapshot save", "Click Save Snapshot with backend active.", "Snapshot saved in MongoDB and history refreshes.", "Snapshot item created and shown in history list.", "Pass"),
+        ("TC-12", "Snapshot restore", "Click Restore Config from history.", "Saved disease and controls are reapplied.", "Explorer restored the prior run configuration.", "Pass"),
+        ("TC-13", "API health", "Call GET /api/health.", "API returns ok status and database name.", "API returned JSON with ok=true.", "Pass"),
+        ("TC-14", "Build verification", "Run npm run build.", "Production build completes without errors.", "webpack build completed successfully.", "Pass"),
     ]
     add_table(document, headers, rows)
 
@@ -655,7 +689,7 @@ def add_results_chapter(document):
     add_heading(document, "CHAPTER 4 RESULTS", 1)
     add_body(
         document,
-        "The implementation produced a working single page dashboard that is demonstrable both as a static preview and as a backend-connected application. Region selection, signal propagation, disease profile switching, selected-region lesioning, label display, and shortest pathway tracing work together in a consistent user flow. With the backend active, the snapshot section also demonstrates full stack persistence by reading and writing to MongoDB.",
+        "The implementation produced a working multipage dashboard that is demonstrable both as a static preview and as a backend-connected application. Region selection, signal propagation, disease profile switching, selected-region lesioning, clinical notes, compare-with-healthy metrics, restoreable history, and shortest pathway tracing work together in a consistent user flow. With the backend active, the history section also demonstrates full stack persistence by reading and writing to MongoDB.",
     )
     add_body(
         document,
@@ -667,8 +701,8 @@ def add_results_chapter(document):
         [
             "The dashboard loaded successfully in both static mode and backend-connected mode.",
             "MongoDB seeding created the expected collections and sample documents.",
-            "Snapshot persistence confirmed that the application is not only visual but also data-driven.",
-            "UI improvements such as disease-region tags and anatomical labels made the dashboard easier to interpret during demonstration.",
+            "Snapshot persistence and restore confirmed that the application is not only visual but also state-driven.",
+            "UI improvements such as clinical notes, disease-region tags, preset pathways, and anatomical labels made the dashboard easier to interpret during demonstration.",
         ],
     )
 
@@ -681,7 +715,7 @@ def add_knowledge_chapter(document):
     )
     add_body(
         document,
-        "Another major learning outcome was document-oriented data modelling for a simulation-oriented application. Instead of storing only user records or CRUD forms, MongoDB was used to organise structured sample regions, network definitions, disease profiles, pathways, and snapshot summaries. This helped in understanding how a document database can support flexible educational or scientific-style datasets that do not fit neatly into rigid relational tables.",
+        "Another major learning outcome was document-oriented data modelling for a simulation-oriented application. Instead of storing only user records or CRUD forms, MongoDB was used to organise structured sample regions, network definitions, disease profiles, pathways, and snapshot configurations. This helped in understanding how a document database can support flexible educational or scientific-style datasets that do not fit neatly into rigid relational tables.",
     )
     add_body(
         document,
